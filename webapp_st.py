@@ -45,7 +45,7 @@ def load_metrics_test():
     except Exception as e:
         return None
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def load_data():
     """Load the dataset for insights and visualizations."""
     try:
