@@ -52,7 +52,7 @@ def load_data():
         df = pd.read_csv('df4.csv')
         return df
     except Exception as e:
-        st.error("Dataset not found. Please ensure 'df3.csv' is in the working directory.")
+        st.error("Dataset not found. Please ensure 'df4.csv' is in the working directory.")
         return None
 
 # Helper function to extract video ID from URL or direct input
@@ -401,7 +401,10 @@ def project_documentation():
 # ---------------------------
 def features_insights():
     st.title("Features Insights")
-    st.subheader("Explore The Dataset & Features")
+    st.subheader("1. About Dataset")
+    model = load_model()
+    df = load_data()
+    
     with st.expander("About Dataset"):
         #st.subheader("About Dataset")
         st.markdown(
@@ -410,7 +413,7 @@ def features_insights():
             YouTube Data API  
         
             ### **Number of Samples**  
-            6,938 samples (a subset of the full project dataset)  
+            6,936 samples (a subset of the full project dataset)  
         
             ### **Attributes**  
             17 features, including video metadata, engagement metrics, and channel information.   
@@ -457,9 +460,6 @@ def features_insights():
         
         st.table(attributes_df)
 
-    # Load the dataset
-    df = load_data()
-    
     with st.expander("Dataset Overview"):
         if df is not None:
             st.markdown(
@@ -471,7 +471,91 @@ def features_insights():
         else:
             st.error("Dataset could not be loaded.")
 
-    st.subheader("Explore The Relationships & Distributions")
+    # Sample DataFrames for Original and Feature Engineered Datasets
+    original_data = pd.DataFrame({
+        "Column": [
+            "Video ID", "Title", "Description", "Category", "Duration (seconds)", "Publish Date",
+            "Publish Time (24h)", "Views", "Likes", "Comments", "Default Audio Language",
+            "Channel Title", "Channel Subscribers", "Total Videos Posted", "Channel Views",
+            "Channel Creation Date", "Channel Country"
+        ],
+        "Dtype": [
+            "object", "object", "object", "int64", "int64", "datetime64[ns]", "object", "int64", "int64", "int64", "object",
+            "object", "int64", "int64", "int64", "datetime64[ns]", "object"
+        ]
+    })
+    
+    feature_engineered_data = pd.DataFrame({
+        "Column": [
+            "Views", "Duration", "Likes", "Comments", "Channel_Subscribers", "Total_Videos_Posted",
+            "Channel_Views", "Title_Length", "Hashtag_Count", "Quarter", "Video_Age", "Engagement_Rate",
+            "Channel_Title_Length", "Average_Video_Views", "Channel_Age", "Title_Sentiment", "Weekday",
+            "Month", "Description_Present", "Duration_Category", "Channel_Size", "Publish_Hour_Time",
+            "Weekly_Videos", "Monthly_Videos", "Category", "Audio_Language", "Channel_Country", "Sentiment_Category"
+        ],
+        "Dtype": [
+            "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64", "int64",
+            "int64", "float64", "int64", "float64", "int64", "float64", "int64", "int64", "int64",
+            "int64", "int64", "int32", "float64", "float64", "int32", "int32", "int32", "int32"
+        ]
+    })
+
+    st.subheader("2. Exploratory Data Analysis (EDA)")
+    tab1, tab2, tab3 = st.tabs(["Data Types", "Descriptive Statistics", "Feature Elements"])
+    
+    with tab1:
+        # Layout for Side-by-Side DataFrames
+        #st.title("EDA & Feature Engineering")
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.subheader("Original Dataset")
+            st.table(original_data)
+        
+        with col2:
+            st.subheader("Feature Engineered Dataset")
+            st.table(feature_engineered_data)
+    
+    with tab2:
+        # Descriptive Statistics for Numerical Features in Transformed Dataset
+        #st.subheader("Descriptive Statistics (Transformed Dataset)")
+        pd.set_option('display.float_format', '{:.2f}'.format)
+        # Assuming 'transformed_df' is your processed dataset
+        # Replace transformed_df with the actual dataset variable
+        st.dataframe(df.describe())
+
+    with tab3:
+        # Feature Selection & Value Counts with Encoded Dictionary
+        #st.subheader("Feature Distribution")
+        feature_names = ['Channel_Country', 'Month', 'Publish_Hour_Time']
+        
+        Chosen_Features = st.selectbox(
+            "Choose a feature to see its element count", 
+            feature_names,
+            help="Select a feature to display its unique elements and their respective counts, along with their encoded values. Useful for categorical and discrete numerical features."
+        )
+        
+        # Assuming 'encoding_dict' holds the mapping from original categorical values to encoded values
+        encoding_dict = {
+            'Channel_Country':{0: 'Algeria', 1: 'Argentina', 2: 'Australia', 3: 'Austria', 4: 'Azerbaijan', 5: 'Bangladesh', 6: 'Belarus', 7: 'Belgium', 8: 'Brazil', 9: 'Bulgaria', 10: 'Cambodia', 11: 'Canada', 12: 'Chile', 13: 'China', 14: 'Colombia', 15: 'Costa Rica', 16: 'Croatia', 17: 'Cyprus', 18: 'Czech Republic', 19: 'Denmark', 20: 'Dominican Republic', 21: 'Ecuador', 22: 'Egypt', 23: 'Estonia', 24: 'Finland', 25: 'France', 26: 'Georgia', 27: 'Germany', 28: 'Greece', 29: 'Hong Kong', 30: 'Hungary', 31: 'Iceland', 32: 'India', 33: 'Indonesia', 34: 'Iraq', 35: 'Ireland', 36: 'Israel', 37: 'Italy', 38: 'Japan', 39: 'Jordan', 40: 'Kazakhstan', 41: 'Kenya', 42: 'Latvia', 43: 'Lithuania', 44: 'Luxembourg', 45: 'Malaysia', 46: 'Malta', 47: 'Mexico', 48: 'Montenegro', 49: 'Morocco', 50: 'Nepal', 51: 'Netherlands', 52: 'New Zealand', 53: 'Nicaragua', 54: 'Nigeria', 55: 'Norway', 56: 'Oman', 57: 'Pakistan', 58: 'Panama', 59: 'Peru', 60: 'Philippines', 61: 'Poland', 62: 'Portugal', 63: 'Qatar', 64: 'Romania', 65: 'Russia', 66: 'Saudi Arabia', 67: 'Senegal', 68: 'Serbia', 69: 'Singapore', 70: 'Slovakia', 71: 'Slovenia', 72: 'South Africa', 73: 'South Korea', 74: 'Spain', 75: 'Sri Lanka', 76: 'Sweden', 77: 'Switzerland', 78: 'Taiwan', 79: 'Tanzania', 80: 'Thailand', 81: 'Tunisia', 82: 'Turkey', 83: 'Ukraine', 84: 'United Arab Emirates', 85: 'United Kingdom', 86: 'United States', 87: 'Unknown', 88: 'Vietnam'},
+            'Month': {1: 'April', 2: 'August', 3: 'December', 4: 'February', 5: 'January', 6: 'July', 7: 'June', 8: 'March', 9: 'May', 10: 'November', 11: 'October', 12: 'September'},
+            'Publish_Hour_Time': {12: '20_Evening', 4: '13_Afternoon', 2: '11_Morning', 5: '14_Afternoon', 1: '10_Morning', 9: '18_Evening', 10: '19_Evening', 8: '17_Afternoon', 20: '6_Morning', 3: '12_Afternoon', 6: '15_Afternoon', 21: '7_Morning', 0: '0_Night', 17: '3_Night', 7: '16_Afternoon', 22: '8_Morning', 19: '5_Night', 14: '22_Night', 13: '21_Night', 16: '2_Night', 15: '23_Night', 23: '9_Morning', 11: '1_Night', 18: '4_Night'}
+        }
+        
+        # Retrieve value counts
+        value_counts = df[Chosen_Features].value_counts().reset_index()
+        value_counts.columns = ['Element', 'Count']
+        
+        # Map encoded values back to original values
+        value_counts['Original Element'] = value_counts['Element'].map(encoding_dict[Chosen_Features])
+        
+        # Rearranging columns
+        value_counts = value_counts[['Element', 'Original Element', 'Count']]
+        
+        st.dataframe(value_counts)
+
+    
+    st.subheader("3. Explore The Relationships & Distributions")
     tab1, tab2, tab3 = st.tabs(["Correlation Heatmap", "Feature Distributions", "Scatter Plot"])
     with tab1:
         st.subheader("Correlation Heatmap")
@@ -520,62 +604,45 @@ def features_insights():
 # ---------------------------
 def features_importance():
     st.title("Features Importance")
+
+    # Load model and data
     model = load_model()
     df = load_data()
     
-    if df is not None:
-        # Determine feature names based on the model or dataset
+    if df is not None and model is not None:
+        # Get feature names
         if hasattr(model, "feature_names_in_"):
             feature_names = list(model.feature_names_in_)
         else:
-            if 'Views' in df.columns:
-                feature_names = list(df.drop('Views', axis=1).columns)
-            else:
-                feature_names = [
-                    'Duration', 'Likes', 'Comments', 'Category', 'Title_Length', 
-                    'Channel_Subscribers', 'Channel_Views', 'Video_Age', 
-                    'Average_Video_Views', 'Hashtag_Count', 'Audio_Language', 
-                    'Total_Videos_Posted', 'Channel_Size_Num', 'Channel_Age', 
-                    'Title_Sentiment'
-                ]
-        
-        st.subheader("SHAP Analysis")
-        st.markdown("The following SHAP plots explain feature importance and how feature values impact the model's output.")
-        
-        # Use the model's feature names if available, else use the derived list
-        if hasattr(model, "feature_names_in_"):
-            features_for_shap = list(model.feature_names_in_)
-        else:
-            features_for_shap = feature_names
-        
-        try:
-            X_shap = df[features_for_shap]
-            y_shap = df['Views']
-            
-            # Create a SHAP explainer (assuming a tree-based model)
-            model.fit(X_shap, y_shap)
-            explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(X_shap)
-            
-            # ---------------------------
-            # SHAP Feature Importance Chart
-            # ---------------------------
-            st.markdown("#### Feature Importance Chart")
-            # The bar plot ranks features from most to least important based on mean(|SHAP value|)
-            shap.summary_plot(shap_values, X_shap)
-            
-            # ---------------------------
-            # SHAP Dependence Plot
-            # ---------------------------
-            st.markdown("#### SHAP Dependence Plot")
-            selected_shap_feature = st.selectbox("Select feature for SHAP Dependence Plot", features_for_shap)
-            shap.dependence_plot(selected_shap_feature, shap_values, X_shap)
-            
-        except Exception as e:
-            st.error("Error generating SHAP plots: " + str(e))
-    else:
-        st.error("Dataset not loaded; cannot compute feature importances.")
+            feature_names = list(df.drop(columns=['Views'], errors='ignore').columns)  # Ignore error if 'Views' is missing
 
+        # Get feature importances
+        if hasattr(model, "feature_importances_"):  # Ensure model supports feature importance
+            importances = model.feature_importances_
+            forest_importances = pd.Series(importances, index=feature_names).sort_values(ascending=False)
+            
+            # Convert to DataFrame
+            importance_df = forest_importances.reset_index()
+            importance_df.columns = ['Feature', 'Importance']
+
+            # Plot
+            fig, ax = plt.subplots(figsize=(10, 6))
+            sns.barplot(
+                x="Importance",
+                y="Feature",
+                data=importance_df,
+                palette="viridis",
+                ax=ax
+            )
+            ax.set_title("Feature Importances from Random Forest")
+            ax.set_xlabel("Importance Score")
+            ax.set_ylabel("Features")
+
+            st.pyplot(fig)  # Display plot in Streamlit
+        else:
+            st.error("The selected model does not support feature importance.")
+    else:
+        st.error("Error: Model or dataset could not be loaded.")
 # ---------------------------
 # Page 4: Predictive Modelling (with Real-Time YouTube Prediction)
 # ---------------------------
@@ -874,7 +941,7 @@ if page == "Project Documentation":
     project_documentation()
 elif page == "Features Insights":
     features_insights()
-#elif page == "Features Importance":
-#    features_importance()
+elif page == "Features Importance":
+    features_importance()
 elif page == "Predictive Modelling":
     predictive_modelling()
